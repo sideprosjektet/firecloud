@@ -1,0 +1,22 @@
+{
+  "implicitDependencies": {
+    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    ".eslintrc.json": "*"
+  },
+  "affected": { "defaultBase": "master" },
+  "npmScope": "eir",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
+    }
+  },
+  "projects": {
+    "eir-frontend": { "tags": [] },
+    "eir-frontend-e2e": {
+      "tags": [],
+      "implicitDependencies": ["eir-frontend"]
+    },
+    "eir-browser": { "tags": [] }
+  }
+}
