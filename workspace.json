@@ -3,7 +3,7 @@
   "cli": {
     "defaultCollection": "@nrwl/react"
   },
-  "defaultProject": "eir-frontend",
+  "defaultProject": "firecloud-frontend",
   "generators": {
     "@nrwl/react": {
       "application": {
@@ -21,9 +21,9 @@
     }
   },
   "projects": {
-    "eir-frontend": {
-      "root": "apps/eir-frontend",
-      "sourceRoot": "apps/eir-frontend/src",
+    "firecloud-frontend": {
+      "root": "apps/firecloud-frontend",
+      "sourceRoot": "apps/firecloud-frontend/src",
       "projectType": "application",
       "targets": {
         "build": {
@@ -32,14 +32,14 @@
             "{options.outputPath}"
           ],
           "options": {
-            "outputPath": "dist/apps/eir-frontend",
-            "index": "apps/eir-frontend/src/index.html",
-            "main": "apps/eir-frontend/src/main.tsx",
-            "polyfills": "apps/eir-frontend/src/polyfills.ts",
-            "tsConfig": "apps/eir-frontend/tsconfig.app.json",
+            "outputPath": "dist/apps/firecloud-frontend",
+            "index": "apps/firecloud-frontend/src/index.html",
+            "main": "apps/firecloud-frontend/src/main.tsx",
+            "polyfills": "apps/firecloud-frontend/src/polyfills.ts",
+            "tsConfig": "apps/firecloud-frontend/tsconfig.app.json",
             "assets": [
-              "apps/eir-frontend/src/favicon.ico",
-              "apps/eir-frontend/src/assets"
+              "apps/firecloud-frontend/src/favicon.ico",
+              "apps/firecloud-frontend/src/assets"
             ],
             "styles": [],
             "scripts": [],
@@ -49,8 +49,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "apps/eir-frontend/src/environments/environment.ts",
-                  "with": "apps/eir-frontend/src/environments/environment.prod.ts"
+                  "replace": "apps/firecloud-frontend/src/environments/environment.ts",
+                  "with": "apps/firecloud-frontend/src/environments/environment.prod.ts"
                 }
               ],
               "optimization": true,
@@ -73,11 +73,11 @@
         "serve": {
           "executor": "@nrwl/web:dev-server",
           "options": {
-            "buildTarget": "eir-frontend:build"
+            "buildTarget": "firecloud-frontend:build"
           },
           "configurations": {
             "production": {
-              "buildTarget": "eir-frontend:build:production"
+              "buildTarget": "firecloud-frontend:build:production"
             }
           }
         },
@@ -85,64 +85,36 @@
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "apps/eir-frontend/**/*.{ts,tsx,js,jsx}"
+              "apps/firecloud-frontend/**/*.{ts,tsx,js,jsx}"
             ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": [
-            "coverage/apps/eir-frontend"
+            "coverage/apps/firecloud-frontend"
           ],
           "options": {
-            "jestConfig": "apps/eir-frontend/jest.config.js",
+            "jestConfig": "apps/firecloud-frontend/jest.config.js",
             "passWithNoTests": true
           }
         }
       }
     },
-    "eir-frontend-e2e": {
-      "root": "apps/eir-frontend-e2e",
-      "sourceRoot": "apps/eir-frontend-e2e/src",
+    "firecloud-browser": {
+      "root": "apps/firecloud-browser",
+      "sourceRoot": "apps/firecloud-browser/src",
       "projectType": "application",
-      "targets": {
-        "e2e": {
-          "executor": "@nrwl/cypress:cypress",
-          "options": {
-            "cypressConfig": "apps/eir-frontend-e2e/cypress.json",
-            "tsConfig": "apps/eir-frontend-e2e/tsconfig.e2e.json",
-            "devServerTarget": "eir-frontend:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "eir-frontend:serve:production"
-            }
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": [
-              "apps/eir-frontend-e2e/**/*.{js,ts}"
-            ]
-          }
-        }
-      }
-    },
-    "eir-browser": {
-      "root": "apps/eir-browser",
-      "sourceRoot": "apps/eir-browser/src",
-      "projectType": "application",
-      "prefix": "eir-browser",
+      "prefix": "firecloud-browser",
       "targets": {
         "build": {
           "executor": "nx-electron:build",
           "options": {
-            "outputPath": "dist/apps/eir-browser",
-            "main": "apps/eir-browser/src/main.ts",
-            "tsConfig": "apps/eir-browser/tsconfig.app.json",
+            "outputPath": "dist/apps/firecloud-browser",
+            "main": "apps/firecloud-browser/src/main.ts",
+            "tsConfig": "apps/firecloud-browser/tsconfig.app.json",
             "assets": [
-              "apps/eir-browser/src/assets"
+              "apps/firecloud-browser/src/assets"
             ]
           },
           "configurations": {
@@ -152,8 +124,8 @@
               "inspect": false,
               "fileReplacements": [
                 {
-                  "replace": "apps/eir-browser/src/environments/environment.ts",
-                  "with": "apps/eir-browser/src/environments/environment.prod.ts"
+                  "replace": "apps/firecloud-browser/src/environments/environment.ts",
+                  "with": "apps/firecloud-browser/src/environments/environment.prod.ts"
                 }
               ]
             }
@@ -162,14 +134,14 @@
         "serve": {
           "executor": "nx-electron:execute",
           "options": {
-            "buildTarget": "eir-browser:build"
+            "buildTarget": "firecloud-browser:build"
           }
         },
         "package": {
           "executor": "nx-electron:package",
           "options": {
-            "name": "eir-browser",
-            "frontendProject": "eir-frontend",
+            "name": "firecloud-browser",
+            "frontendProject": "firecloud-frontend",
             "outputPath": "dist/packages",
             "prepackageOnly": true
           }
@@ -177,8 +149,8 @@
         "make": {
           "executor": "nx-electron:make",
           "options": {
-            "name": "eir-browser",
-            "frontendProject": "eir-frontend",
+            "name": "firecloud-browser",
+            "frontendProject": "firecloud-frontend",
             "outputPath": "dist/executables"
           }
         },
@@ -186,17 +158,17 @@
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": [
-              "apps/eir-browser/**/*.ts"
+              "apps/firecloud-browser/**/*.ts"
             ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": [
-            "coverage/apps/eir-browser"
+            "coverage/apps/firecloud-browser"
           ],
           "options": {
-            "jestConfig": "apps/eir-browser/jest.config.js",
+            "jestConfig": "apps/firecloud-browser/jest.config.js",
             "passWithNoTests": true
           }
         }

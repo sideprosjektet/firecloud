@@ -1,3 +1,3 @@
 module.exports = {
-  projects: ['<rootDir>/apps/eir-frontend', '<rootDir>/apps/eir-browser'],
+  projects: ['<rootDir>/apps/firecloud-frontend', '<rootDir>/apps/firecloud-browser'],
 };
