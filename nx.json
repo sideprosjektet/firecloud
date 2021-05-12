@@ -13,6 +13,9 @@
   },
   "projects": {
     "firecloud-frontend": { "tags": [] },
-    "firecloud-browser": { "tags": [] }
+    "firecloud-browser": { "tags": [] },
+    "firecloud-backend": { "tags": [] },
+    "testdata-generator": { "tags": [] },
+    "fhir-data-generator": { "tags": [] }
   }
 }
