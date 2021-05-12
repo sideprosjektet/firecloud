@@ -1,8 +1,9 @@
-import {BrowserWindow, screen, shell} from 'electron';
+import {BrowserView, BrowserWindow, screen, shell,ipcMain} from 'electron';
 import {rendererAppName, rendererAppPort} from './constants';
 import {environment} from '../environments/environment';
 import {join} from 'path';
 import {format} from 'url';
+import {logger} from "@nrwl/tao/src/shared/logger";
 
 export default class App {
     // Keep a global reference of the window object, if you don't, the window will
@@ -46,6 +47,7 @@ export default class App {
         // Some APIs can only be used after this event occurs.
         App.initMainWindow();
         App.loadMainWindow();
+        //App.loadSubWindow();
     }
 
     private static onActivate() {
@@ -93,21 +95,38 @@ export default class App {
             // when you should delete the corresponding element.
             App.mainWindow = null;
         });
+
+    }
+    private static loadSubWindow() {
+        const browserView = new BrowserView();
+        App.mainWindow.setBrowserView(browserView);
+        const y = 300;
+        const x = 400;
+        const {width, height} = App.mainWindow.getBounds();
+        browserView.setBounds({x, y, width, height: height - y});
+        browserView.webContents.loadURL("https://example.com/");
+        App.mainWindow.on('resize', () =>{
+            const {width, height} = App.mainWindow.getBounds();
+            browserView.setBounds({x, y, width, height: height - y});
+        });
+        ipcMain.on('change-url', (event, arg) => {
+            console.log(arg)
+            event.reply('asynchronous-reply', 'pong')
+        })
     }
 
     private static loadMainWindow() {
         // load the index.html of the app.
-        if (!App.application.isPackaged) {
-            App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
-        } else {
-            App.mainWindow.loadURL(
-                format({
-                    pathname: join(__dirname, '..', rendererAppName, 'index.html'),
-                    protocol: 'file:',
-                    slashes: true,
-                })
-            );
-        }
+        const applicationUrl = App.application.isPackaged ?
+            format({
+                pathname: join(__dirname, '..', rendererAppName, 'index.html'),
+                protocol: 'file:',
+                slashes: true,
+            }) : `http://localhost:${rendererAppPort}`;
+
+        App.mainWindow.loadURL(applicationUrl).then(() => {
+            logger.info(applicationUrl + " loaded")
+        })
     }
 
     static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
