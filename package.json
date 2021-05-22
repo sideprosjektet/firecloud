@@ -28,6 +28,7 @@
   },
   "private": true,
   "dependencies": {
+    "axios": "^0.21.1",
     "core-js": "^3.12.1",
     "document-register-element": "1.13.1",
     "express": "4.17.1",
@@ -87,6 +88,8 @@
     "typescript": "~4.1.4"
   },
   "browser": {
-    "fs": false
+    "fs": false,
+    "path": false,
+    "os": false
   }
 }
