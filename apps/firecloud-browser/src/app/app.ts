@@ -1,9 +1,11 @@
-import {BrowserView, BrowserWindow, screen, shell,ipcMain} from 'electron';
+import {BrowserView, BrowserWindow, ipcMain, protocol, screen, shell} from 'electron';
 import {rendererAppName, rendererAppPort} from './constants';
 import {environment} from '../environments/environment';
 import {join} from 'path';
 import {format} from 'url';
 import {logger} from "@nrwl/tao/src/shared/logger";
+import {createPatient} from "../../../../libs/fhir-data-generator/src/lib/resources/create-patient";
+
 
 export default class App {
     // Keep a global reference of the window object, if you don't, the window will
@@ -47,7 +49,30 @@ export default class App {
         // Some APIs can only be used after this event occurs.
         App.initMainWindow();
         App.loadMainWindow();
-        //App.loadSubWindow();
+        App.loadSubWindow();
+        App.registerExtraProtocol();
+        App.mainWindow.webContents.openDevTools();
+    }
+
+    /**
+     * Mulighet til å pipe kallene igjennom egen protokoll inne i appen. Noe som gjør at smart on fhir
+     * appene ikke ser hvilken server de treffer. Dette gjør det også mulig å holde relativt mye av
+     * de dataene som legen trenger i arbeidsminnet til electron. Feks kan appen i backend holde hele
+     * eller deler av de pasientene som feks skal på besøk denne dagen. Systemet vil være lynraskt.
+     * Oauth implementasjonen vil da kjøre inne her og kan kraftig forenkles.
+     *
+     * @private
+     */
+    private static registerExtraProtocol() {
+        protocol.registerStringProtocol("fhir", (request, callback) => {
+            console.log(request.url);
+            callback({
+                headers: {
+                    "content-type": "application/json"
+                },
+                data: JSON.stringify(createPatient())
+            });
+        })
     }
 
     private static onActivate() {
@@ -69,11 +94,13 @@ export default class App {
             height: height,
             show: false,
             webPreferences: {
-                contextIsolation: true,
+                contextIsolation: false,
                 backgroundThrottling: false,
+                nodeIntegration: true,
                 preload: join(__dirname, 'preload.js'),
             },
         });
+
         App.mainWindow.setMenu(null);
         App.mainWindow.center();
 
@@ -97,20 +124,25 @@ export default class App {
         });
 
     }
+
     private static loadSubWindow() {
         const browserView = new BrowserView();
         App.mainWindow.setBrowserView(browserView);
-        const y = 300;
-        const x = 400;
+        const y = 200;
+        const x = 300;
         const {width, height} = App.mainWindow.getBounds();
-        browserView.setBounds({x, y, width, height: height - y});
-        browserView.webContents.loadURL("https://example.com/");
-        App.mainWindow.on('resize', () =>{
+        browserView.setBounds({x, y, width: width - x - 50, height: height - y - 50});
+        browserView.webContents.loadURL("https://example.com/").then(r => {
+            console.log("https://example.com/ loaded")
+        })
+        App.mainWindow.on('resize', () => {
             const {width, height} = App.mainWindow.getBounds();
-            browserView.setBounds({x, y, width, height: height - y});
+            browserView.setBounds({x, y, width: width - x - 50, height: height - y - 50});
         });
         ipcMain.on('change-url', (event, arg) => {
-            console.log(arg)
+            browserView.webContents.loadURL("http://nav.no").then(() => {
+                console.log("http://nav.no", arg)
+            })
             event.reply('asynchronous-reply', 'pong')
         })
     }
@@ -141,5 +173,9 @@ export default class App {
         App.application.on('window-all-closed', App.onWindowAllClosed); // Quit when all windows are closed.
         App.application.on('ready', App.onReady); // App is ready to load data
         App.application.on('activate', App.onActivate); // App is activated
+
+        protocol.registerSchemesAsPrivileged([
+            {scheme: 'fhir', privileges: {bypassCSP: true}}
+        ])
     }
 }

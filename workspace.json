@@ -34,7 +34,7 @@
             ],
             "styles": [],
             "scripts": [],
-            "webpackConfig": "@nrwl/react/plugins/webpack"
+            "webpackConfig": "apps/firecloud-frontend/webpack.config.js"
           },
           "configurations": {
             "production": {
