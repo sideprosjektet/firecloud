@@ -1,6 +1,8 @@
 {
   "version": 2,
-  "cli": { "defaultCollection": "@nrwl/react" },
+  "cli": {
+    "defaultCollection": "@nrwl/react"
+  },
   "defaultProject": "firecloud-frontend",
   "generators": {
     "@nrwl/react": {
@@ -9,8 +11,13 @@
         "linter": "eslint",
         "babel": true
       },
-      "component": { "style": "styled-components" },
-      "library": { "style": "styled-components", "linter": "eslint" }
+      "component": {
+        "style": "styled-components"
+      },
+      "library": {
+        "style": "styled-components",
+        "linter": "eslint"
+      }
     }
   },
   "projects": {
@@ -63,7 +70,9 @@
         },
         "serve": {
           "executor": "@nrwl/web:dev-server",
-          "options": { "buildTarget": "firecloud-frontend:build" },
+          "options": {
+            "buildTarget": "firecloud-frontend:build"
+          },
           "configurations": {
             "production": {
               "buildTarget": "firecloud-frontend:build:production"
@@ -116,7 +125,9 @@
         },
         "serve": {
           "executor": "nx-electron:execute",
-          "options": { "buildTarget": "firecloud-browser:build" }
+          "options": {
+            "buildTarget": "firecloud-browser:build"
+          }
         },
         "package": {
           "executor": "nx-electron:package",
@@ -137,7 +148,9 @@
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["apps/firecloud-browser/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["apps/firecloud-browser/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -179,11 +192,15 @@
         },
         "serve": {
           "executor": "@nrwl/node:execute",
-          "options": { "buildTarget": "firecloud-backend:build" }
+          "options": {
+            "buildTarget": "firecloud-backend:build"
+          }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["apps/firecloud-backend/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["apps/firecloud-backend/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -225,11 +242,15 @@
         },
         "serve": {
           "executor": "@nrwl/node:execute",
-          "options": { "buildTarget": "testdata-generator:build" }
+          "options": {
+            "buildTarget": "testdata-generator:build"
+          }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["apps/testdata-generator/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["apps/testdata-generator/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -257,6 +278,56 @@
           "outputs": ["coverage/libs/fhir-data-generator"],
           "options": {
             "jestConfig": "libs/fhir-data-generator/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "firecloud-internal-proxy": {
+      "root": "apps/firecloud-internal-proxy",
+      "sourceRoot": "apps/firecloud-internal-proxy/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/firecloud-internal-proxy",
+            "main": "apps/firecloud-internal-proxy/src/main.ts",
+            "tsConfig": "apps/firecloud-internal-proxy/tsconfig.app.json",
+            "assets": ["apps/firecloud-internal-proxy/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/firecloud-internal-proxy/src/environments/environment.ts",
+                  "with": "apps/firecloud-internal-proxy/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "firecloud-internal-proxy:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/firecloud-internal-proxy/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/firecloud-internal-proxy"],
+          "options": {
+            "jestConfig": "apps/firecloud-internal-proxy/jest.config.js",
             "passWithNoTests": true
           }
         }

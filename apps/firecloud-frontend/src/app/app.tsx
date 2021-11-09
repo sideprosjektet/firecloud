@@ -131,8 +131,8 @@ function changeUrl() {
 }
 
 async function testFhirUrl() {
-    const res = await axios.get("fhir://something");
-    console.log(res)
+    const res = await axios.get("fhir://something-server/auth/authorize?client_id=whatever&response_type=code&scope=patient%2F*.*%20user%2F*.*%20launch%20openid%20fhirUser%20profile%20offline_access&redirect_uri=https%3A%2F%2Flaunch.smarthealthit.org%2Fsample-app%2F&state=414cc130-b9fa-caa4-bf6c-e7dbf896cfcc&aud=fhir%3A%2F%2Fsomething-else%2Ffhir&launch=%7B%22some%22%3A%22data%22%7D");
+    console.log(res.data)
 }
 
 export function App() {

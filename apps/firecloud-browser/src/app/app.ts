@@ -1,10 +1,18 @@
-import {BrowserView, BrowserWindow, ipcMain, protocol, screen, shell} from 'electron';
+import {BrowserView, BrowserWindow, ipcMain, protocol, ProtocolResponse, screen, shell} from 'electron';
 import {rendererAppName, rendererAppPort} from './constants';
 import {environment} from '../environments/environment';
 import {join} from 'path';
 import {format} from 'url';
 import {logger} from "@nrwl/tao/src/shared/logger";
-import {createPatient} from "../../../../libs/fhir-data-generator/src/lib/resources/create-patient";
+import {loadSofApp} from "./utils/launch-url";
+import authAuthorize from "./route/authAuthorize";
+import fhirMetadata from "./route/fhirMetadata";
+import fhirProxy from "./route/fhirProxy";
+import authToken from "./route/authToken";
+import otherProxy from "./route/otherProxy";
+import {fork} from "child_process"
+import axios from "axios";
+import * as fs from "fs";
 
 
 export default class App {
@@ -36,6 +44,7 @@ export default class App {
     }
 
     private static onRedirect(event: any, url: string) {
+        console.log("redirect")
         if (url !== App.mainWindow.webContents.getURL()) {
             // this is a normal external redirect, open it in a new browser window
             event.preventDefault();
@@ -50,7 +59,7 @@ export default class App {
         App.initMainWindow();
         App.loadMainWindow();
         App.loadSubWindow();
-        App.registerExtraProtocol();
+        //App.registerExtraProtocol();
         App.mainWindow.webContents.openDevTools();
     }
 
@@ -64,14 +73,25 @@ export default class App {
      * @private
      */
     private static registerExtraProtocol() {
-        protocol.registerStringProtocol("fhir", (request, callback) => {
-            console.log(request.url);
-            callback({
+        protocol.registerHttpProtocol("http", (request, callback) => {
+            console.log("Fhir-request:", request);
+            const requestUrl = new URL(request.url);
+            const response: ProtocolResponse = {
                 headers: {
                     "content-type": "application/json"
-                },
-                data: JSON.stringify(createPatient())
-            });
+                }
+            }
+            if (requestUrl.pathname.startsWith("/fhir/metadata")) {
+                callback(fhirMetadata(request, response));
+            } else if (requestUrl.pathname.startsWith("/auth/authorize")) {
+                authAuthorize(request, response).then(callback)
+            } else if (requestUrl.pathname.startsWith("/auth/token")) {
+                authToken(request, response).then(callback);
+            } else if (requestUrl.pathname.startsWith("/fhir")) {
+                fhirProxy(request, response).then(callback)
+            } else {
+                otherProxy(request, response).then(callback)
+            }
         })
     }
 
@@ -107,6 +127,10 @@ export default class App {
         // if main window is ready to show, close the splash window and show the main window
         App.mainWindow.once('ready-to-show', () => {
             App.mainWindow.show();
+            axios.get("http://localhost:21342/api").then(res => {
+                console.log(res.data)
+            })
+
         });
 
         // handle all external redirects in a new browser window
@@ -139,12 +163,17 @@ export default class App {
             const {width, height} = App.mainWindow.getBounds();
             browserView.setBounds({x, y, width: width - x - 50, height: height - y - 50});
         });
-        ipcMain.on('change-url', (event, arg) => {
-            browserView.webContents.loadURL("http://nav.no").then(() => {
-                console.log("http://nav.no", arg)
-            })
+        ipcMain.on('change-url', async (event, arg) => {
+            const sampleApp = 'https://launch.smarthealthit.org/sample-app/launch.html';
+            await loadSofApp(browserView, sampleApp)
             event.reply('asynchronous-reply', 'pong')
         })
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        browserView.webContents.on('will-navigate', function (event, oldUrl, newUrl) {
+            console.log({oldUrl, newUrl});
+        });
     }
 
     private static loadMainWindow() {
@@ -161,12 +190,19 @@ export default class App {
         })
     }
 
+    private static startInternalProxy() {
+        const modulePath = join(__dirname, "..", "firecloud-internal-proxy", "main.js");
+        const data = fs.readFileSync(modulePath, "utf-8")
+        const sub = fork(modulePath, [], {stdio: "inherit"})
+
+    }
+
     static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
         // we pass the Electron.App object and the
         // Electron.BrowserWindow into this function
         // so this class has no dependencies. This
         // makes the code easier to write tests for
-
+        App.startInternalProxy()
         App.BrowserWindow = browserWindow;
         App.application = app;
 
@@ -174,8 +210,6 @@ export default class App {
         App.application.on('ready', App.onReady); // App is ready to load data
         App.application.on('activate', App.onActivate); // App is activated
 
-        protocol.registerSchemesAsPrivileged([
-            {scheme: 'fhir', privileges: {bypassCSP: true}}
-        ])
+
     }
 }
